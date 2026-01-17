@@ -191,3 +191,5 @@ pytest tests/ --cov=app --cov-report=html
 ---
 
 **API Documentation**: `http://localhost:8000/docs` (Swagger UI)
+
+**Frontend Repository**: [urwallet-frontend](https://github.com/rxhuljoshi/urwallet-frontend)
