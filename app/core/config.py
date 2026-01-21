@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://urwallet:password@localhost:5432/urwallet"
-    firebase_credentials_path: str = "firebase-credentials.json"
+    supabase_url: str = ""
     cors_origins: str = "*"
     groq_api_key: str = ""
     debug: bool = False

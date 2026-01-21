@@ -7,8 +7,8 @@ A production-ready FastAPI backend for personal expense tracking with AI-powered
 | Component | Technology |
 |-----------|------------|
 | Framework | **FastAPI** with async support |
-| Database | **PostgreSQL** via SQLAlchemy async |
-| Auth | **Firebase Authentication** |
+| Database | **Supabase PostgreSQL** via SQLAlchemy async |
+| Auth | **Supabase Authentication** |
 | AI | **Groq** (LLaMA 3.3 70B) |
 | Container | **Docker** + Docker Compose |
 
@@ -22,7 +22,7 @@ backend/
 │   ├── core/
 │   │   ├── config.py        # Environment settings
 │   │   ├── database.py      # PostgreSQL connection
-│   │   └── firebase.py      # Firebase Admin SDK
+│   │   └── supabase.py      # Supabase JWT verification
 │   ├── models/              # SQLAlchemy ORM models
 │   │   ├── user.py
 │   │   └── transaction.py
@@ -48,7 +48,7 @@ backend/
 ### Prerequisites
 
 - **Docker** & **Docker Compose**
-- **Firebase project** with Authentication enabled
+- **Supabase project** with Authentication enabled
 - **Groq API key** (optional, for AI features)
 
 ### 1. Setup Environment
@@ -62,11 +62,12 @@ cp .env.example .env
 # Edit .env with your values
 ```
 
-### 2. Firebase Credentials
+### 2. Supabase Setup
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Project Settings → Service Accounts → Generate New Private Key
-3. Save as `firebase-credentials.json` in the `backend/` directory
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
+2. Create a new project or select existing
+3. Go to Project Settings → API
+4. Copy your `URL` and `JWT Secret` to your `.env` file
 
 ### 3. Run with Docker
 
@@ -143,16 +144,17 @@ uvicorn app.main:app --reload --port 8000
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DATABASE_URL` | PostgreSQL connection string | Required |
-| `FIREBASE_CREDENTIALS_PATH` | Path to Firebase JSON | `firebase-credentials.json` |
+| `SUPABASE_URL` | Supabase project URL | Required |
+| `SUPABASE_JWT_SECRET` | Supabase JWT secret | Required |
 | `CORS_ORIGINS` | Allowed origins (comma-separated) | `*` |
 | `GROQ_API_KEY` | Groq API key for AI features | Optional |
 | `DEBUG` | Enable debug logging | `false` |
 
 ## Authentication Flow
 
-1. **Frontend** handles login/registration via Firebase JS SDK
-2. **Frontend** sends Firebase ID token in `Authorization: Bearer <token>` header
-3. **Backend** verifies token using Firebase Admin SDK
+1. **Frontend** handles login/registration via Supabase JS SDK
+2. **Frontend** sends Supabase access token in `Authorization: Bearer <token>` header
+3. **Backend** verifies JWT using Supabase JWT secret
 4. **Backend** creates user in PostgreSQL on first login
 
 ## Database

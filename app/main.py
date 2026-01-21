@@ -7,7 +7,6 @@ from starlette.middleware.cors import CORSMiddleware
 
 from .core.config import get_settings
 from .core.database import init_db, close_db
-from .core.firebase import init_firebase
 from .routers import auth, user, transactions, dashboard, ai
 
 logging.basicConfig(
@@ -20,7 +19,6 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting urWallet API...")
-    init_firebase()
     await init_db()
     logger.info("DB initialized")
     
