@@ -22,6 +22,7 @@ def get_engine():
             settings.database_url,
             echo=settings.debug,
             pool_pre_ping=True,
+            connect_args={"statement_cache_size": 0},  # Required for pgbouncer
         )
     return _engine
 
