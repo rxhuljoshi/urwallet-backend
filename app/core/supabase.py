@@ -1,4 +1,4 @@
-# Supabase JWT verification using JWKS (modern approach)
+# Supabase JWT verification - supports both HS256 (legacy) and RS256 (new)
 import jwt
 from jwt import PyJWKClient
 from typing import Optional
@@ -21,43 +21,70 @@ def get_jwks_client() -> Optional[PyJWKClient]:
             logger.error("Supabase URL not configured")
             return None
         
-        # JWKS endpoint for Supabase
         jwks_url = f"{settings.supabase_url}/auth/v1/.well-known/jwks.json"
-        _jwks_client = PyJWKClient(jwks_url, cache_keys=True)
-        logger.info(f"JWKS client initialized for {settings.supabase_url}")
+        try:
+            _jwks_client = PyJWKClient(jwks_url, cache_keys=True)
+            logger.info(f"JWKS client initialized for {settings.supabase_url}")
+        except Exception as e:
+            logger.warning(f"Could not initialize JWKS client: {e}")
+            return None
     
     return _jwks_client
 
 
 def verify_supabase_token(access_token: str) -> Optional[dict]:
-    """Verify Supabase JWT using JWKS and return decoded payload or None if invalid."""
-    jwks_client = get_jwks_client()
+    """Verify Supabase JWT - tries RS256 (JWKS) first, falls back to HS256."""
+    settings = get_settings()
     
-    if jwks_client is None:
-        logger.error("JWKS client not available")
-        return None
-    
+    # First, decode without verification to check the algorithm
     try:
-        # Get the signing key from JWKS based on token's kid
-        signing_key = jwks_client.get_signing_key_from_jwt(access_token)
-        
-        # Verify and decode the token
-        decoded = jwt.decode(
-            access_token,
-            signing_key.key,
-            algorithms=["RS256"],
-            audience="authenticated",
-        )
-        return decoded
-    except jwt.ExpiredSignatureError:
-        logger.warning("Supabase token expired")
-        return None
-    except jwt.InvalidTokenError as e:
-        logger.warning(f"Invalid Supabase token: {e}")
-        return None
+        unverified = jwt.decode(access_token, options={"verify_signature": False})
+        header = jwt.get_unverified_header(access_token)
+        alg = header.get("alg", "HS256")
     except Exception as e:
-        logger.error(f"Token verification failed: {e}")
+        logger.warning(f"Could not decode token header: {e}")
         return None
+    
+    # Try RS256 with JWKS if that's the algorithm
+    if alg == "RS256":
+        jwks_client = get_jwks_client()
+        if jwks_client:
+            try:
+                signing_key = jwks_client.get_signing_key_from_jwt(access_token)
+                decoded = jwt.decode(
+                    access_token,
+                    signing_key.key,
+                    algorithms=["RS256"],
+                    audience="authenticated",
+                )
+                return decoded
+            except Exception as e:
+                logger.warning(f"RS256 verification failed: {e}")
+                return None
+    
+    # Fall back to HS256 with JWT secret
+    if alg == "HS256":
+        if not settings.supabase_jwt_secret:
+            logger.error("Supabase JWT secret not configured for HS256 token")
+            return None
+        
+        try:
+            decoded = jwt.decode(
+                access_token,
+                settings.supabase_jwt_secret,
+                algorithms=["HS256"],
+                audience="authenticated",
+            )
+            return decoded
+        except jwt.ExpiredSignatureError:
+            logger.warning("Supabase token expired")
+            return None
+        except jwt.InvalidTokenError as e:
+            logger.warning(f"Invalid Supabase token: {e}")
+            return None
+    
+    logger.warning(f"Unsupported algorithm: {alg}")
+    return None
 
 
 def get_user_id_from_token(decoded: dict) -> Optional[str]:

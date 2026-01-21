@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://urwallet:password@localhost:5432/urwallet"
     supabase_url: str = ""
+    supabase_jwt_secret: str = ""  # For HS256 (legacy projects)
     cors_origins: str = "*"
     groq_api_key: str = ""
     debug: bool = False
