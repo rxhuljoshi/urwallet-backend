@@ -7,7 +7,7 @@ pydantic-settings==2.7.1
 
 # Database - PostgreSQL
 sqlalchemy[asyncio]==2.0.37
-asyncpg==0.30.0
+psycopg[binary]==3.2.5
 alembic==1.14.1
 
 # Supabase JWT Verification (JWKS)

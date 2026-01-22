@@ -19,19 +19,22 @@ def get_engine():
     global _engine
     if _engine is None:
         settings = get_settings()
-        print(f"DEBUG: Connecting to DB: {settings.database_url.split('@')[-1]}")
-        print(f"DEBUG: Using connect_args: {{'statement_cache_size': 0}}")
         
-        # Ensure statement_cache_size is passed correctly to asyncpg
-        # Use NullPool to disable SQLAlchemy pooling (pgbouncer handles it)
+        # Convert asyncpg URL to psycopg if needed
+        db_url = settings.database_url
+        if "postgresql+asyncpg://" in db_url:
+            db_url = db_url.replace("postgresql+asyncpg://", "postgresql+psycopg://")
+        elif "postgresql://" in db_url and "+psycopg" not in db_url:
+            db_url = db_url.replace("postgresql://", "postgresql+psycopg://")
+        
+        print(f"DEBUG: Connecting to DB: {db_url.split('@')[-1]}")
+        
+        # Use NullPool - pgbouncer handles connection pooling
+        # psycopg doesn't use prepared statements by default, so pgbouncer works!
         _engine = create_async_engine(
-            settings.database_url,
+            db_url,
             echo=settings.debug,
-            poolclass=NullPool,  # Disable SQLAlchemy pooling - pgbouncer handles it
-            connect_args={
-                "statement_cache_size": 0,
-                "prepared_statement_cache_size": 0,
-            },
+            poolclass=NullPool,
         )
     return _engine
 
