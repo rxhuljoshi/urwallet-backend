@@ -34,6 +34,7 @@ async def get_transactions(
             id=str(t.id),
             user_id=t.user_id,
             amount=t.amount,
+            currency=t.currency,
             category=t.category,
             remarks=t.remarks,
             date=t.date,
@@ -56,9 +57,13 @@ async def create_transaction(
         ai_service = get_ai_service()
         category = await ai_service.categorize_transaction(txn_data.amount, txn_data.remarks)
     
+    # Default to user's currency if not provided
+    currency = txn_data.currency or user.currency or "USD"
+    
     transaction = Transaction(
         user_id=firebase_uid,
         amount=txn_data.amount,
+        currency=currency,
         category=category,
         remarks=txn_data.remarks,
         date=txn_data.date,
@@ -71,6 +76,7 @@ async def create_transaction(
         id=str(transaction.id),
         user_id=transaction.user_id,
         amount=transaction.amount,
+        currency=transaction.currency,
         category=transaction.category,
         remarks=transaction.remarks,
         date=transaction.date,
@@ -112,6 +118,7 @@ async def update_transaction(
         id=str(transaction.id),
         user_id=transaction.user_id,
         amount=transaction.amount,
+        currency=transaction.currency,
         category=transaction.category,
         remarks=transaction.remarks,
         date=transaction.date,

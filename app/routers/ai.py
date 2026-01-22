@@ -58,6 +58,7 @@ async def get_insights(
         year=year,
         transactions=[t.to_dict() for t in month_txns],
         budget=user.budget,
+        currency=user.currency or "USD",
     )
     
     # Cache it

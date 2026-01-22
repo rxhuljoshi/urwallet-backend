@@ -9,6 +9,7 @@ class TransactionCreate(BaseModel):
     category: str
     remarks: Optional[str] = None
     date: str  # YYYY-MM-DD
+    currency: Optional[str] = None  # Defaults to user's currency if not provided
 
 
 class TransactionUpdate(BaseModel):
@@ -16,12 +17,14 @@ class TransactionUpdate(BaseModel):
     category: Optional[str] = None
     remarks: Optional[str] = None
     date: Optional[str] = None
+    currency: Optional[str] = None
 
 
 class TransactionResponse(BaseModel):
     id: str
     user_id: str
     amount: float
+    currency: str
     category: str
     remarks: Optional[str] = None
     date: str

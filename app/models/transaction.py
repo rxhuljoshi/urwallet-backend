@@ -13,6 +13,7 @@ class Transaction(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     amount = Column(Float, nullable=False)
+    currency = Column(String, nullable=False, default="USD")
     category = Column(String, nullable=False)
     remarks = Column(String, nullable=True)
     date = Column(String, nullable=False)  # YYYY-MM-DD
@@ -23,6 +24,7 @@ class Transaction(Base):
             "id": str(self.id),
             "user_id": self.user_id,
             "amount": self.amount,
+            "currency": self.currency,
             "category": self.category,
             "remarks": self.remarks,
             "date": self.date,

@@ -123,9 +123,16 @@ uvicorn app.main:app --reload --port 8000
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/transactions` | List all transactions |
-| POST | `/api/transactions` | Create transaction |
+| POST | `/api/transactions` | Create transaction (currency defaults to user's default) |
 | PUT | `/api/transactions/{id}` | Update transaction |
 | DELETE | `/api/transactions/{id}` | Delete transaction |
+
+**Transaction fields:**
+- `amount` (float) - Transaction amount
+- `currency` (string) - Currency code (USD, EUR, GBP, INR, etc.)
+- `category` (string) - Category name
+- `remarks` (string) - Optional notes
+- `date` (string) - Date in YYYY-MM-DD format
 
 ### Dashboard
 | Method | Endpoint | Description |

@@ -54,10 +54,16 @@ Respond with ONLY the category name, nothing else."""
         month: int,
         year: int,
         transactions: List[dict],
-        budget: Optional[float] = None
+        budget: Optional[float] = None,
+        currency: str = "USD"
     ) -> str:
         if not self.enabled or not transactions:
             return "No insights available."
+        
+        # Currency symbols for display
+        symbols = {"USD": "$", "EUR": "€", "GBP": "£", "INR": "₹", "JPY": "¥", 
+                   "AUD": "A$", "CAD": "C$", "CHF": "CHF", "CNY": "¥"}
+        sym = symbols.get(currency, currency)
         
         try:
             total_expense = sum(t["amount"] for t in transactions if t["category"] not in ["Savings", "Investment"])
@@ -68,15 +74,16 @@ Respond with ONLY the category name, nothing else."""
             for t in transactions:
                 category_totals[t["category"]] += t["amount"]
             
-            category_summary = "\n".join([f"- {cat}: {amt:.2f}" for cat, amt in category_totals.items()])
-            budget_info = f"Monthly budget: {budget}\n" if budget else ""
+            category_summary = "\n".join([f"- {cat}: {sym}{amt:.2f}" for cat, amt in category_totals.items()])
+            budget_info = f"Monthly budget: {sym}{budget}\n" if budget else ""
             
             prompt = f"""Analyze this monthly expense data and provide insights:
 
 Month: {month}/{year}
-{budget_info}Total Expenses: {total_expense:.2f}
-Total Savings: {total_savings:.2f}
-Total Investments: {total_investment:.2f}
+Currency: {currency} ({sym})
+{budget_info}Total Expenses: {sym}{total_expense:.2f}
+Total Savings: {sym}{total_savings:.2f}
+Total Investments: {sym}{total_investment:.2f}
 
 Category Breakdown:
 {category_summary}
@@ -87,7 +94,7 @@ Provide:
 3. Calculate savings rate if applicable
 4. ONE blunt, actionable suggestion to improve finances
 
-Be direct and specific with numbers. Keep it under 150 words."""
+Use the {sym} symbol for all amounts. Be direct and specific with numbers. Keep it under 150 words."""
             
             completion = self.client.chat.completions.create(
                 model=self.model,
