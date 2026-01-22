@@ -45,8 +45,8 @@ def verify_supabase_token(access_token: str) -> Optional[dict]:
         logger.warning(f"Could not decode token header: {e}")
         return None
     
-    # Try RS256 with JWKS if that's the algorithm
-    if alg == "RS256":
+    # Try RS256 or ES256 with JWKS
+    if alg in ("RS256", "ES256"):
         jwks_client = get_jwks_client()
         if jwks_client:
             try:
@@ -54,12 +54,12 @@ def verify_supabase_token(access_token: str) -> Optional[dict]:
                 decoded = jwt.decode(
                     access_token,
                     signing_key.key,
-                    algorithms=["RS256"],
+                    algorithms=["RS256", "ES256"],
                     audience="authenticated",
                 )
                 return decoded
             except Exception as e:
-                logger.warning(f"RS256 verification failed: {e}")
+                logger.warning(f"{alg} verification failed: {e}")
                 return None
     
     # Fall back to HS256 with JWT secret
