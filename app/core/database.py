@@ -1,6 +1,7 @@
 # Postgres connection via SQLAlchemy async
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 from typing import AsyncGenerator
 
 from .config import get_settings
@@ -22,13 +23,14 @@ def get_engine():
         print(f"DEBUG: Using connect_args: {{'statement_cache_size': 0}}")
         
         # Ensure statement_cache_size is passed correctly to asyncpg
+        # Use NullPool to disable SQLAlchemy pooling (pgbouncer handles it)
         _engine = create_async_engine(
             settings.database_url,
             echo=settings.debug,
-            pool_pre_ping=False, # Disable pre-ping to avoid prepared statements during check
+            poolclass=NullPool,  # Disable SQLAlchemy pooling - pgbouncer handles it
             connect_args={
                 "statement_cache_size": 0,
-                "prepared_statement_cache_size": 0, # Redundant check
+                "prepared_statement_cache_size": 0,
             },
         )
     return _engine
