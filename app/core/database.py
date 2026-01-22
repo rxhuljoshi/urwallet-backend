@@ -16,13 +16,18 @@ _session_factory = None
 
 def get_engine():
     global _engine
-    if _engine is None:
-        settings = get_settings()
+        print(f"DEBUG: Connecting to DB: {settings.database_url.split('@')[-1]}")
+        print(f"DEBUG: Using connect_args: {{'statement_cache_size': 0}}")
+        
+        # Ensure statement_cache_size is passed correctly to asyncpg
         _engine = create_async_engine(
             settings.database_url,
             echo=settings.debug,
-            pool_pre_ping=True,
-            connect_args={"statement_cache_size": 0},  # Required for pgbouncer
+            pool_pre_ping=False, # Disable pre-ping to avoid prepared statements during check
+            connect_args={
+                "statement_cache_size": 0,
+                "prepared_statement_cache_size": 0, # Redundant check
+            },
         )
     return _engine
 
