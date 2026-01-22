@@ -15,6 +15,7 @@ _session_factory = None
 
 
 def get_engine():
+    global _engine
     if _engine is None:
         settings = get_settings()
         print(f"DEBUG: Connecting to DB: {settings.database_url.split('@')[-1]}")
