@@ -17,6 +17,8 @@ class Transaction(Base):
     category = Column(String, nullable=False)
     remarks = Column(String, nullable=True)
     date = Column(String, nullable=False)  # YYYY-MM-DD
+    type = Column(String, nullable=False, default="expense")  # income | expense
+    source = Column(String, nullable=True)  # budget | savings (for expenses only)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     def to_dict(self) -> dict:
@@ -28,6 +30,8 @@ class Transaction(Base):
             "category": self.category,
             "remarks": self.remarks,
             "date": self.date,
+            "type": self.type,
+            "source": self.source,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
