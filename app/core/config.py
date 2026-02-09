@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     debug: bool = False
     
+    # Currency conversion (ExchangeRate-API)
+    fx_api_key: str = ""
+    fx_api_base_url: str = "https://v6.exchangerate-api.com/v6"
+    
     @property
     def allowed_origins(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",")]

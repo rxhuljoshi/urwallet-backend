@@ -7,7 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from .core.config import get_settings
 from .core.database import init_db, close_db
-from .routers import auth, user, transactions, dashboard, ai
+from .routers import auth, user, transactions, dashboard, ai, currency
 
 logging.basicConfig(
     level=logging.INFO,
@@ -52,6 +52,7 @@ app.include_router(user.router, prefix="/api")
 app.include_router(transactions.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
 app.include_router(ai.router, prefix="/api")
+app.include_router(currency.router, prefix="/api")
 
 
 @app.get("/api/")

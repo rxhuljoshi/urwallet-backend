@@ -1,6 +1,6 @@
 # Transaction request/response schemas
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel
 
 
@@ -10,6 +10,9 @@ class TransactionCreate(BaseModel):
     remarks: Optional[str] = None
     date: str  # YYYY-MM-DD
     currency: Optional[str] = None  # Defaults to user's currency if not provided
+    type: Literal["income", "expense"] = "expense"
+    source: Optional[Literal["budget", "savings"]] = None  # Only for expenses
+    add_to_savings: bool = False  # Only for income
 
 
 class TransactionUpdate(BaseModel):
@@ -18,6 +21,8 @@ class TransactionUpdate(BaseModel):
     remarks: Optional[str] = None
     date: Optional[str] = None
     currency: Optional[str] = None
+    type: Optional[Literal["income", "expense"]] = None
+    source: Optional[Literal["budget", "savings"]] = None
 
 
 class TransactionResponse(BaseModel):
@@ -28,6 +33,8 @@ class TransactionResponse(BaseModel):
     category: str
     remarks: Optional[str] = None
     date: str
+    type: str
+    source: Optional[str] = None
     created_at: Optional[datetime] = None
     
     class Config:

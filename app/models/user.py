@@ -13,6 +13,7 @@ class User(Base):
     currency = Column(String, nullable=True)
     dark_mode = Column(Boolean, default=True, nullable=False)
     budget = Column(Float, nullable=True)
+    savings_balance = Column(Float, default=0.0, nullable=False)
     ai_insights_enabled = Column(Boolean, default=True, nullable=False)
     is_currency_set = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -24,6 +25,7 @@ class User(Base):
             "currency": self.currency,
             "dark_mode": self.dark_mode,
             "budget": self.budget,
+            "savings_balance": self.savings_balance,
             "ai_insights_enabled": self.ai_insights_enabled,
             "is_currency_set": self.is_currency_set,
             "created_at": self.created_at.isoformat() if self.created_at else None,
